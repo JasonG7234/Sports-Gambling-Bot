@@ -1,16 +1,9 @@
-from nba_api.stats.endpoints import ScoreboardV2, TeamEstimatedMetrics
-from datetime import date
+from nba_api.stats.endpoints import TeamGameLog, TeamEstimatedMetrics
+import datetime
 import driver
 import pandas
 
 DRIVER_LOCATION = '../chromedriver'
-
-team_id_mapper = {'Atlanta Hawks': 1610612737, 'Boston Celtics': 1610612738, 'Cleveland Cavaliers': 1610612739, 'New Orleans Pelicans': 1610612740, 'Chicago Bulls': 1610612741,
-                  'Dallas Mavericks': 1610612742, 'Denver Nuggets': 1610612743, 'Golden State Warriors': 1610612744, 'Houston Rockets': 1610612745, 'Los Angeles Clippers': 1610612746,
-                  'Los Angeles Lakers': 1610612747, 'Miami Heat': 1610612748, 'Milwaukee Bucks': 1610612749, 'Minnesota Timberwolves': 1610612750, 'Brooklyn Nets': 1610612751,
-                  'New York Knicks': 1610612752, 'Orlando Magic': 1610612753, 'Indiana Pacers': 1610612754, 'Philadelphia 76ers': 1610612755, 'Phoenix Suns': 1610612756,
-                  'Portland Trail Blazers': 1610612757, 'Sacramento Kings': 1610612758, 'San Antonio Spurs': 1610612759, 'Oklahoma City Thunder': 1610612760, 'Toronto Raptors': 1610612761,
-                  'Utah Jazz': 1610612762, 'Memphis Grizzlies': 1610612763, 'Washington Wizards': 1610612764, 'Detroit Pistons': 1610612765, 'Charlotte Hornets': 1610612766}
 
 headers = {
         'Host': 'stats.nba.com',
@@ -26,18 +19,22 @@ headers = {
 
 TEST_GAME_ID = "0022000747"
 
-#test = TeamEstimatedMetrics(league_id="00", season="2020-21", season_type="Regular Season").get_data_frames()
-
-#with pandas.option_context('display.max_columns', None):
-#        print(test)
-
-# set window size attribute to ensure consistency across devices
+def print_full_dataframe(df):
+    with pandas.option_context('display.max_columns', None):
+        print(df)
 
 def main():
-    fanduel = driver.API(DRIVER_LOCATION)
-    fanduel.close_overlay()
-    basketball_games = fanduel.get_basketball_games()
+    today = datetime.date.today()
 
+    game_log = TeamGameLog(league_id_nullable="00", season="2020-21", season_type_all_star="Regular Season", team_id="1610612747").get_data_frames()[0].iloc[:5]
+    print_full_dataframe(game_log)
+    recent_game_dates = list(game_log['GAME_DATE'])
+    for recent_game in recent_game_dates:
+        game_date = datetime.datetime.strptime(recent_game, '%b %d, %Y').date()
+        print((today - game_date).days)
+    recent_matchups = list(game_log['MATCHUP'])
+    for recent_matchup in recent_matchups:
+        print('HOME' if recent_matchup[4] == 'v' else 'AWAY')
 
 if __name__ == "__main__":
     main()
