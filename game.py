@@ -1,5 +1,12 @@
 class NBAGame:
 
+    team_name_mapper = {'ATL Hawks': 'Atlanta Hawks', 'BOS Celtics': 'Boston Celtics', 'CLE Cavaliers': 'Cleveland Cavaliers', 'NO Pelicans': 'New Orleans Pelicans', 'CHI Bulls': 'Chicago Bulls',
+                  'DAL Mavericks': 'Dallas Mavericks', 'DEN Nuggets': 'Denver Nuggets', 'GS Warriors': 'Golden State Warriors', 'HOU Rockets': 'Houston Rockets', 'LA Clippers': 'Los Angeles Clippers',
+                  'LA Lakers': 'Los Angeles Lakers', 'MIA Heat': 'Miami Heat', 'MIL Bucks': 'Milwaukee Bucks', 'MIN Timberwolves': 'Minnesota Timberwolves', 'BKN Nets': 'Brooklyn Nets',
+                  'NY Knicks': 'New York Knicks', 'ORL Magic': 'Orlando Magic', 'IND Pacers': 'Indiana Pacers', 'PHI 76ers': 'Philadelphia 76ers', 'PHX Suns': 'Phoenix Suns',
+                  'POR Trail Blazers': 'Portland Trail Blazers', 'SAC Kings': 'Sacramento Kings', 'SA Spurs': 'San Antonio Spurs', 'OKC Thunder': 'Oklahoma City Thunder', 'TOR Raptors': 'Toronto Raptors',
+                  'UTA Jazz': 'Utah Jazz', 'MEM Grizzlies': 'Memphis Grizzlies', 'WAS Wizards': 'Washington Wizards', 'DET Pistons': 'Detroit Pistons', 'CHA Hornets': 'Charlotte Hornets'}
+
 
     team_id_mapper = {'Atlanta Hawks': 1610612737, 'Boston Celtics': 1610612738, 'Cleveland Cavaliers': 1610612739, 'New Orleans Pelicans': 1610612740, 'Chicago Bulls': 1610612741,
                   'Dallas Mavericks': 1610612742, 'Denver Nuggets': 1610612743, 'Golden State Warriors': 1610612744, 'Houston Rockets': 1610612745, 'Los Angeles Clippers': 1610612746,
@@ -22,22 +29,25 @@ class NBAGame:
         self.under = under
 
     def set_home_team(self, home_team):
-        self.home_team = home_team
+        self.home_team = self.team_name_mapper[home_team]
 
     def get_home_team(self):
         return self.home_team
     
     def get_home_team_id(self):
-        return team_id_mapper[self.home_team]
+        return self.team_id_mapper[self.home_team]
 
     def set_away_team(self, away_team):
-        self.away_team = away_team
+        self.away_team = self.team_name_mapper[away_team]
 
     def get_away_team(self):
         return self.away_team
 
     def get_away_team_id(self):
-        return team_id_mapper[self.away_team]
+        return self.team_id_mapper[self.away_team]
+
+    def get_team_ids(self):
+        return [self.get_home_team_id(), self.get_away_team_id()]
 
     def set_home_spread(self, spread, odds):
         self.home_spread = [spread, odds]
@@ -98,3 +108,11 @@ class NBAGame:
 
     def get_under_odds(self):
         return self.under[1]
+
+    def print_matchup(self):
+        if (self.home_spread and self.home_moneyline and self.over):
+            print("{} -> Spread: {} @ {} ML: {} O/U: {} @ {}".format(self.home_team, self.get_home_spread_handicap(), self.get_home_spread_odds(), self.home_moneyline, self.get_over_total(), self.get_over_odds(), ))
+            print("{} -> Spread: {} @ {} ML: {} O/U: {} @ {}".format(self.away_team, self.get_away_spread_handicap(), self.get_away_spread_odds(), self.away_moneyline, self.get_under_total(), self.get_under_odds()))
+        else:
+            print("ERROR: No lines available for {} vs. {}".format(self.home_team, self.away_team))
+        print("============================================================")
