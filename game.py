@@ -29,7 +29,7 @@ class NBAGame:
         self.under = under
 
     def set_home_team(self, home_team):
-        self.home_team = self.team_name_mapper[home_team]
+        self.home_team = self.team_name_mapper.get(home_team, home_team)
 
     def get_home_team(self):
         return self.home_team
@@ -38,7 +38,7 @@ class NBAGame:
         return self.team_id_mapper[self.home_team]
 
     def set_away_team(self, away_team):
-        self.away_team = self.team_name_mapper[away_team]
+        self.away_team = self.team_name_mapper.get(away_team, away_team)
 
     def get_away_team(self):
         return self.away_team
@@ -111,7 +111,8 @@ class NBAGame:
 
     def print_matchup(self):
         if (self.home_spread and self.home_moneyline and self.over):
-            print("{} -> Spread: {} @ {} ML: {} O/U: {} @ {}".format(self.home_team, self.get_home_spread_handicap(), self.get_home_spread_odds(), self.home_moneyline, self.get_over_total(), self.get_over_odds(), ))
+            print("{} -> Spread: {} @ {} ML: {} O/U: {} @ {}".format(self.home_team, self.get_home_spread_handicap(), self.get_home_spread_odds(), self.home_moneyline, self.get_over_total(), self.get_over_odds(), )) 
+        if (self.away_spread and self.away_moneyline and self.under):
             print("{} -> Spread: {} @ {} ML: {} O/U: {} @ {}".format(self.away_team, self.get_away_spread_handicap(), self.get_away_spread_odds(), self.away_moneyline, self.get_under_total(), self.get_under_odds()))
         else:
             print("ERROR: No lines available for {} vs. {}".format(self.home_team, self.away_team))

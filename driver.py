@@ -1,16 +1,15 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
 import time
 import game
-
-url = 'https://sportsbook.fanduel.com/sports'
 
 CURRENT_HANDICAP_CSS = "div[class='currenthandicap']"
 SELECTION_PRICE_CSS = "div[class='selectionprice']"
 
 class API:
 
-    def __init__(self, driver_location):
+    def __init__(self, driver_location, url):
         options = Options()
         options.headless = True
         self.driver = webdriver.Chrome(driver_location)
@@ -77,8 +76,35 @@ class API:
                     handicaps = total_div.find_elements_by_css_selector(CURRENT_HANDICAP_CSS)
                     selectionprices = total_div.find_elements_by_css_selector(SELECTION_PRICE_CSS)
                     nba_game.set_over(handicaps[0].text[2:], selectionprices[0].text)
-                    nba_game.set_under(handicaps[2].text[2:], selectionprices[1].text)
+                    nba_game.set_under(handicaps[1].text[2:], selectionprices[1].text)
                 except:
                     print("ERROR: No O/U for this game")
             games.append(nba_game)
         return games
+
+    def close_numberfire_overlay(self):
+        time.sleep(5)
+        overlay = self.driver.find_element_by_xpath("//div[@class='signup-interstitial open']")
+        login_text = overlay.find_element_by_xpath("//a[@data-login-modal-open=true()]")
+        ActionChains(self.driver).move_to_element(login_text).click(login_text).perform()
+        time.sleep(2)
+        overlay = self.driver.find_element_by_xpath("//div[@class='modal numberFire-login open']")
+        close_overlay = overlay.find_element_by_xpath("//span[@class='nf-icon icon-close']")
+        ActionChains(self.driver).move_to_element(close_overlay).click(close_overlay).perform()
+
+    def get_numberfire_projections(self):
+        for lineup_dropdown in self.driver.find_elements_by_xpath("//div[@class='dfs-main__options__sections__indiv']"):
+            if ("Slate" in lineup_dropdown.text):
+                print(lineup_dropdown.text)
+                slate_dropdown = lineup_dropdown.find_element_by_xpath("//div[@class='custom-drop']")
+                slate_dropdown.click()
+                time.sleep(1)
+                for slate_option in slate_dropdown.find_elements_by_tag_name('li'):
+                    print(slate_option.text)
+                    if ("All Day" in slate_option.text):
+                        slate_option.click()
+                        break
+                break
+        time.sleep(5)
+        table = self.driver.find_element_by_css_selector('tbody.stat-table__body')
+        return table.text
