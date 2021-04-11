@@ -83,7 +83,7 @@ class API:
         return games
 
     def close_numberfire_overlay(self):
-        time.sleep(5)
+        time.sleep(10)
         overlay = self.driver.find_element_by_xpath("//div[@class='signup-interstitial open']")
         login_text = overlay.find_element_by_xpath("//a[@data-login-modal-open=true()]")
         ActionChains(self.driver).move_to_element(login_text).click(login_text).perform()
@@ -95,16 +95,14 @@ class API:
     def get_numberfire_projections(self):
         for lineup_dropdown in self.driver.find_elements_by_xpath("//div[@class='dfs-main__options__sections__indiv']"):
             if ("Slate" in lineup_dropdown.text):
-                print(lineup_dropdown.text)
-                slate_dropdown = lineup_dropdown.find_element_by_xpath("//div[@class='custom-drop']")
-                slate_dropdown.click()
-                time.sleep(1)
-                for slate_option in slate_dropdown.find_elements_by_tag_name('li'):
-                    print(slate_option.text)
-                    if ("All Day" in slate_option.text):
-                        slate_option.click()
-                        break
-                break
-        time.sleep(5)
-        table = self.driver.find_element_by_css_selector('tbody.stat-table__body')
-        return table.text
+                for dropdown in lineup_dropdown.find_elements_by_xpath("//div[@class='custom-drop']"):
+                    if ("Main" in dropdown.text):
+                        dropdown.click()
+                        time.sleep(1)
+                        for slate_option in dropdown.find_elements_by_tag_name('li'):
+                            print(slate_option.text)
+                            if ("All Day" in slate_option.text):
+                                slate_option.click()
+                                time.sleep(5)
+                                return self.driver.find_element_by_css_selector('tbody.stat-table__body')
+        
