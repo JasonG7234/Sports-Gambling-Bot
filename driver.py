@@ -1,8 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+import json
 import time
 import game
+
 
 CURRENT_HANDICAP_CSS = "div[class='currenthandicap']"
 SELECTION_PRICE_CSS = "div[class='selectionprice']"
@@ -105,4 +108,36 @@ class API:
                                 slate_option.click()
                                 time.sleep(5)
                                 return self.driver.find_element_by_css_selector('tbody.stat-table__body')
-        
+
+    def get_fantasypros_projections(self):
+        self.close_fantasypros_overlays()
+        self.driver.find_element_by_css_selector("a#login-upgrade-btn").click()
+        time.sleep(2)
+        return self.login_to_fantasypros()
+
+    def close_fantasypros_overlays(self):
+        time.sleep(10)
+        overlays = self.driver.find_elements_by_css_selector("iframe[id*='google_ads_iframe']")
+        if (overlays): self.driver.switch_to.frame(overlays[len(overlays)-1])
+        time.sleep(1)
+        close_ad = self.driver.find_element_by_css_selector("div#closebutton")
+        if (close_ad and close_ad.is_displayed()):
+            close_ad.click()
+            time.sleep(1)
+        self.driver.switch_to.default_content()
+        close_cookies_div = self.driver.find_element_by_css_selector("button.onetrust-close-btn-handler")
+        print(close_cookies_div)
+        if (not close_cookies_div): close_cookies_div = self.driver.find_element_by_css_selector("button.onetrust-accept-btn-handler")
+        if (close_cookies_div and close_cookies_div.is_displayed()):
+            print("about to click")
+            close_cookies_div.click()
+
+    def login_to_fantasypros(self):
+        f = open('keys.json')
+        data = json.load(f)
+        self.driver.find_element_by_css_selector("input#id_username").send_keys(data['username'])
+        self.driver.find_element_by_css_selector("input#id_password").send_keys(data['password'])
+        f.close()
+        self.driver.find_element_by_xpath("//button[contains(text(), 'LOG IN')]").click()
+        time.sleep(2)
+        return self.driver.find_element_by_css_selector("table#data")
