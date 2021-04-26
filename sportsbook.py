@@ -42,3 +42,4 @@ class odds:
 
     def __str__(self):
         return f"{self.sportsbook_name}: {str(self.strikeouts)}. o{self.over} & u{self.under}"
+    
